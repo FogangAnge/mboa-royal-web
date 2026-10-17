@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  /* Couleurs de la marque */
+  --color-palmier-950: #0f2a1d;
+  --color-palmier-800: #1e4d35;
+  --color-palmier-600: #3f6b50;
+  --color-or-500: #d4a24c;
+  --color-or-300: #e9c77f;
+  --color-or-100: #efe4cc;
+  --color-argile-600: #b4472b;
+  --color-argile-800: #8f2a13;
+  --color-creme-50: #f6efe2;
+  --color-creme-0: #fffdf8;
+  --color-encre-900: #1d1a14;
+  --color-sable-600: #5a5245;
+  --color-sable-300: #cfc2a8;
+  --color-whatsapp: #1f8a50;
+
+  /* Polices */
+  --font-titre: "Playfair Display", Georgia, serif;
+  --font-texte: "Karla", system-ui, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-creme-50);
+  color: var(--color-encre-900);
+  font-family: var(--font-texte);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-or-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
