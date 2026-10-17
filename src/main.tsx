@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App";
 import "./index.css";
+import PanierProvider from "./panier/PanierProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,7 +19,9 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <PanierProvider>
+        <App />
+      </PanierProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

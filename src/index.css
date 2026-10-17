@@ -26,6 +26,12 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -39,6 +45,34 @@ body {
 :focus-visible {
   outline: 3px solid var(--color-or-500);
   outline-offset: 2px;
+}
+
+/* La bande à motifs inspirée des broderies du toghu */
+.bande-toghu {
+  height: 14px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-or-500) 0 10px,
+    var(--color-palmier-950) 10px 20px,
+    var(--color-argile-600) 20px 30px,
+    var(--color-palmier-950) 30px 40px
+  );
+}
+
+/* Les blocs gris qui patientent pendant le chargement */
+.squelette {
+  background: linear-gradient(90deg, #efe4cc 25%, #f6efe2 50%, #efe4cc 75%);
+  background-size: 200% 100%;
+  animation: squelette 1.4s ease-in-out infinite;
+}
+
+@keyframes squelette {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
