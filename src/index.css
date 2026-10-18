@@ -75,11 +75,444 @@ body {
   }
 }
 
+/* ================================================================
+   Le mouvement
+   Un seul vrai « moment » : l'arrivée sur l'accueil (le tissu toghu se tisse,
+   le slogan se lève, les assiettes se posent). Ailleurs, le mouvement répond
+   seulement à un geste du client : ajouter au panier, ouvrir une fenêtre…
+   ================================================================ */
+
+/* La bande toghu se tisse de gauche à droite */
+@keyframes tissage {
+  from {
+    background-position: -480px 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    background-position: 0 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+.bande-toghu-anime {
+  animation: tissage 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+}
+
+/* Chaque ligne du slogan monte derrière un cache, comme un rideau qui se lève */
+@keyframes ligne-monte {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.ligne-cache {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+}
+.ligne-cache > span {
+  display: block;
+  animation: ligne-monte 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Le texte qui suit apparaît en douceur */
+@keyframes apparait {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.apparait {
+  animation: apparait 0.8s ease-out both;
+}
+
+/* Les photos se posent sur la table, l'une après l'autre */
+@keyframes assiette-posee {
+  0% {
+    opacity: 0;
+    transform: translateY(48px) rotate(-5deg) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.assiette {
+  animation: assiette-posee 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Le point « Ouvert » respire : le restaurant est vivant en ce moment */
+@keyframes respire {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(74, 222, 128, 0);
+  }
+}
+.point-vivant {
+  animation: respire 2.6s ease-in-out infinite;
+}
+
+/* Les étapes « Commander, c'est simple » arrivent dans l'ordre, au moment où on les voit */
+.etapes > li {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.etapes > li .numero-etape {
+  transition:
+    background-color 0.5s ease-out,
+    color 0.5s ease-out;
+}
+.etapes.visible > li {
+  opacity: 1;
+  transform: none;
+}
+.etapes.visible > li .numero-etape {
+  background-color: var(--color-or-500);
+  color: var(--color-palmier-950);
+}
+
+/* Le badge du panier bondit quand on ajoute un plat */
+@keyframes bond {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.bond {
+  animation: bond 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+/* Les messages en bas de l'écran glissent vers le haut */
+@keyframes glisse {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+[aria-live="polite"].fixed > * {
+  animation: glisse 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Les fenêtres (choix des options, fiche d'un plat) s'ouvrent au lieu d'apparaître d'un coup */
+@keyframes ouverture {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+}
+@keyframes fondu {
+  from {
+    opacity: 0;
+  }
+}
+dialog[open] {
+  animation: ouverture 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+dialog[open]::backdrop {
+  animation: fondu 0.3s ease-out;
+}
+
+/* Le menu du téléphone se déroule */
+@keyframes deroule {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+.deroule {
+  animation: deroule 0.25s ease-out;
+}
+
+/* Suivi de commande : l'étape en cours bat doucement, comme un cœur */
+@keyframes pulsation {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 162, 76, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(212, 162, 76, 0);
+  }
+}
+li[aria-current="step"] > div:first-child > span:first-child {
+  animation: pulsation 2s ease-in-out infinite;
+}
+
+/* ---------- Le rideau d'ouverture (première visite) ---------- */
+.rideau {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-palmier-950);
+  cursor: pointer;
+  transition: transform 1s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.rideau-leve {
+  transform: translateY(-100%);
+}
+.rideau-contenu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transition:
+    opacity 0.45s ease-out,
+    transform 1s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.rideau-leve .rideau-contenu {
+  opacity: 0;
+  transform: translateY(-60px) scale(0.94);
+}
+.rideau-nom {
+  margin: 0;
+  color: var(--color-creme-50);
+  font-size: clamp(2.6rem, 7vw, 4.5rem);
+  font-weight: 700;
+  animation: nom-apparait 1s cubic-bezier(0.2, 0.8, 0.2, 1) 1.05s both;
+}
+@keyframes nom-apparait {
+  from {
+    opacity: 0;
+    letter-spacing: 0.45em;
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.02em;
+    filter: blur(0);
+  }
+}
+.rideau-frange {
+  position: absolute;
+  inset: auto 0 0 0;
+}
+html.rideau-actif {
+  overflow: hidden;
+}
+html.rideau-actif .apparait,
+html.rideau-actif .ligne-cache > span,
+html.rideau-actif .assiette,
+html.rideau-actif .bande-toghu-anime {
+  animation-play-state: paused;
+}
+
+/* L'emblème qui se dessine */
+.embleme-anime .embleme-fond {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: embleme-grandit 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.embleme-anime .embleme-anneau {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transform: rotate(-90deg);
+  transform-origin: 256px 256px;
+  animation: embleme-trace 1.1s cubic-bezier(0.6, 0, 0.2, 1) 0.15s forwards;
+}
+.embleme-anime .embleme-toghu {
+  transform-origin: 256px 256px;
+  animation: embleme-couronne 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both;
+}
+.embleme-anime .embleme-bol {
+  animation: embleme-monte 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
+}
+.embleme-anime .embleme-feuille {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: embleme-pousse 0.75s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.embleme-anime .embleme-perle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: embleme-eclot 0.45s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+@keyframes embleme-grandit {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes embleme-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes embleme-couronne {
+  from {
+    opacity: 0;
+    transform: rotate(-140deg) scale(0.8);
+  }
+}
+@keyframes embleme-monte {
+  from {
+    opacity: 0;
+    transform: translateY(70px);
+  }
+}
+@keyframes embleme-pousse {
+  from {
+    opacity: 0;
+    transform: scale(0.5, 0);
+  }
+}
+@keyframes embleme-eclot {
+  from {
+    transform: scale(0);
+  }
+}
+
+/* ---------- Le défilé des plats ---------- */
+.defile {
+  overflow: hidden;
+  padding-block: 28px;
+  border-bottom: 1px solid var(--color-sable-300);
+}
+.defile-piste {
+  display: flex;
+  width: max-content;
+  animation: defile 45s linear infinite;
+}
+.defile:hover .defile-piste {
+  animation-play-state: paused;
+}
+.defile-mot {
+  padding-inline: 0.35em;
+  font-family: var(--font-titre);
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  font-style: italic;
+  line-height: 1;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-palmier-950);
+  transition: color 0.3s ease-out;
+}
+.defile-mot:nth-child(4n + 3) {
+  color: var(--color-or-500);
+  -webkit-text-stroke: 0;
+}
+.defile-mot:hover {
+  color: var(--color-argile-600);
+  -webkit-text-stroke: 0;
+}
+.defile-separateur {
+  align-self: center;
+  width: 0.7em;
+  height: 0.7em;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  background: var(--color-argile-600);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+@keyframes defile {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Les photos de l'accueil glissent à des vitesses différentes ---------- */
+.parallaxe-lente {
+  transform: translateY(calc(var(--defile, 0) * 0.06px));
+  will-change: transform;
+}
+.parallaxe-rapide {
+  transform: translateY(calc(var(--defile, 0) * -0.14px));
+  will-change: transform;
+}
+
+/* ---------- Les plats signature se dévoilent comme un rideau qu'on tire ---------- */
+.cartes-revelees > * {
+  clip-path: inset(100% 0 0 0 round 16px);
+  transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.cartes-revelees > * img {
+  transform: scale(1.2);
+  transition:
+    transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 0.7s ease-out;
+}
+.cartes-revelees.visible > * {
+  /* Une marge négative : une fois dévoilée, l'ombre de la carte n'est plus coupée. */
+  clip-path: inset(-40px -40px -40px -40px round 16px);
+}
+.cartes-revelees.visible > * img {
+  transform: none;
+}
+
+/* ---------- La photo qui s'envole vers le panier ---------- */
+.envol {
+  position: fixed;
+  z-index: 60;
+  border-radius: 9999px;
+  object-fit: cover;
+  pointer-events: none;
+  background: var(--color-or-500);
+  border: 3px solid var(--color-or-500);
+  box-shadow: 0 14px 30px -8px rgba(15, 42, 29, 0.55);
+}
+
+/* ---------- L'écran cuisine ---------- */
+@keyframes ticket-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-36px) scale(0.95);
+    box-shadow: 0 0 0 0 rgba(212, 162, 76, 0);
+  }
+  40% {
+    opacity: 1;
+    box-shadow: 0 0 0 6px rgba(212, 162, 76, 0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    box-shadow: 0 0 0 0 rgba(212, 162, 76, 0);
+  }
+}
+.ticket-arrive {
+  animation: ticket-arrive 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes ticket-retard {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(180, 71, 43, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(180, 71, 43, 0);
+  }
+}
+.ticket-retard {
+  animation: ticket-retard 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

@@ -1,6 +1,7 @@
 import {
   Bike,
   CalendarDays,
+  ChefHat,
   ClipboardList,
   ExternalLink,
   LayoutDashboard,
@@ -14,7 +15,8 @@ import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router";
 
 import { getReservationsAConfirmer } from "../api/admin";
 import { useAuth } from "../auth/useAuth";
-import { estPersonnel } from "../types/compte";
+import { sonnerette } from "../lib/son";
+import { estCuisinier, estPersonnel } from "../types/compte";
 import { libelleRole } from "./outils";
 import { useCommandesAdmin } from "./useCommandesAdmin";
 
@@ -35,24 +37,6 @@ const LIENS: LienAdmin[] = [
 ];
 
 const TITRE = "Mboa Royal — Espace restaurant";
-
-/** Un petit « ding » joué par le navigateur, sans fichier son. */
-function sonnerette() {
-  try {
-    const contexte = new AudioContext();
-    const oscillateur = contexte.createOscillator();
-    const volume = contexte.createGain();
-    oscillateur.frequency.value = 880;
-    volume.gain.setValueAtTime(0.2, contexte.currentTime);
-    volume.gain.exponentialRampToValueAtTime(0.001, contexte.currentTime + 0.8);
-    oscillateur.connect(volume).connect(contexte.destination);
-    oscillateur.start();
-    oscillateur.stop(contexte.currentTime + 0.8);
-    oscillateur.onended = () => void contexte.close();
-  } catch {
-    /* son bloqué par le navigateur : le badge suffit */
-  }
-}
 
 function classeLien({ isActive }: { isActive: boolean }) {
   const base = "relative flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 font-semibold transition-colors";
@@ -119,6 +103,10 @@ function Coquille() {
               </NavLink>
             );
           })}
+          <Link to="/cuisine" className="flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 font-semibold text-or-300 transition-colors hover:bg-palmier-800/60">
+            <ChefHat aria-hidden="true" className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap">Écran cuisine</span>
+          </Link>
         </nav>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-palmier-800 pt-4 text-sm md:mt-auto md:flex-col md:items-stretch">
@@ -159,6 +147,11 @@ export default function AdminLayout() {
 
   if (!utilisateur) {
     return <Navigate to="/admin/connexion" replace state={{ depuis: location.pathname + location.search }} />;
+  }
+
+  // Le cuisinier n'a pas accès à l'admin : il a son propre écran.
+  if (estCuisinier(utilisateur)) {
+    return <Navigate to="/cuisine" replace />;
   }
 
   if (!estPersonnel(utilisateur)) {

@@ -9,6 +9,7 @@ import MenuAdmin from "./admin/pages/MenuAdmin";
 import Reservations from "./admin/pages/Reservations";
 import TableauDeBord from "./admin/pages/TableauDeBord";
 import Layout from "./components/Layout";
+import EcranCuisine from "./cuisine/EcranCuisine";
 import Accueil from "./pages/Accueil";
 import CommandeConfirmee from "./pages/CommandeConfirmee";
 import Menu from "./pages/Menu";
@@ -31,6 +32,9 @@ export default function App() {
           <Route path="reservation" element={<Reservation />} />
           <Route path="*" element={<PageIntrouvable />} />
         </Route>
+
+        {/* L'écran de la cuisine (tablette ou télé) */}
+        <Route path="cuisine" element={<EcranCuisine />} />
 
         {/* L'espace du restaurant */}
         <Route path="admin/connexion" element={<Connexion />} />

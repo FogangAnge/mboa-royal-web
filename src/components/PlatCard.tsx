@@ -17,9 +17,9 @@ export default function PlatCard({ plat, devise, action }: PlatCardProps) {
   return (
     <article
       id={`plat-${plat.id}`}
-      className="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl bg-creme-0 shadow-[0_1px_0_#e6dac3,0_12px_28px_-18px_rgba(15,42,29,0.35)]"
+      className="group flex w-full scroll-mt-24 flex-col overflow-hidden rounded-2xl bg-creme-0 shadow-[0_1px_0_#e6dac3,0_12px_28px_-18px_rgba(15,42,29,0.35)]"
     >
-      <div className="relative aspect-[4/3] bg-or-100">
+      <div className="relative aspect-[4/3] overflow-hidden bg-or-100">
         {plat.photo && (
           <img
             src={plat.photo}
@@ -27,7 +27,7 @@ export default function PlatCard({ plat, devise, action }: PlatCardProps) {
             loading="lazy"
             width={400}
             height={300}
-            className={`h-full w-full object-cover ${alerte ? "opacity-60" : ""}`}
+            className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${alerte ? "opacity-60" : ""}`}
           />
         )}
         {plat.region_origine && (

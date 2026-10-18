@@ -19,3 +19,12 @@ const ROLES_PERSONNEL = ["proprietaire", "gerant"];
 export function estPersonnel(utilisateur: Utilisateur): boolean {
   return ROLES_PERSONNEL.includes(utilisateur.role);
 }
+
+export function estCuisinier(utilisateur: Utilisateur): boolean {
+  return utilisateur.role === "cuisinier";
+}
+
+/** L'écran cuisine : le cuisinier, mais aussi le propriétaire et le gérant. */
+export function peutVoirCuisine(utilisateur: Utilisateur): boolean {
+  return estPersonnel(utilisateur) || estCuisinier(utilisateur);
+}

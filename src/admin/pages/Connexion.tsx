@@ -4,15 +4,20 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router";
 
 import { useAuth } from "../../auth/useAuth";
 import { messagesErreur } from "../../lib/erreurs";
-import { estPersonnel } from "../../types/compte";
+import { estCuisinier, peutVoirCuisine, type Utilisateur } from "../../types/compte";
 
 const CHAMP = "h-12 w-full rounded-xl border-[1.5px] border-sable-300 bg-white px-3 text-base";
+
+/** Le cuisinier va toujours à l'écran cuisine ; le personnel revient là où il voulait aller. */
+function destination(compte: Utilisateur, depuis: string | undefined): string {
+  return estCuisinier(compte) ? "/cuisine" : (depuis ?? "/admin");
+}
 
 export default function Connexion() {
   const { utilisateur, connexion, deconnexion } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const depuis = (location.state as { depuis?: string } | null)?.depuis ?? "/admin";
+  const depuis = (location.state as { depuis?: string } | null)?.depuis;
 
   const [telephone, setTelephone] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
@@ -21,8 +26,8 @@ export default function Connexion() {
   const [envoi, setEnvoi] = useState(false);
 
   // Déjà connecté : pas besoin de formulaire.
-  if (utilisateur && estPersonnel(utilisateur)) {
-    return <Navigate to={depuis} replace />;
+  if (utilisateur && peutVoirCuisine(utilisateur)) {
+    return <Navigate to={destination(utilisateur, depuis)} replace />;
   }
 
   async function envoyer(evenement: FormEvent) {
@@ -31,12 +36,12 @@ export default function Connexion() {
     setEnvoi(true);
     try {
       const compte = await connexion(telephone, motDePasse);
-      if (!estPersonnel(compte)) {
+      if (!peutVoirCuisine(compte)) {
         deconnexion();
         setErreur("Ce compte n'a pas accès à l'espace du restaurant.");
         return;
       }
-      navigate(depuis, { replace: true });
+      navigate(destination(compte, depuis), { replace: true });
     } catch (probleme) {
       setErreur(messagesErreur(probleme)[0]);
     } finally {

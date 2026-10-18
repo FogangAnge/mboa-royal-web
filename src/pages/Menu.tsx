@@ -1,11 +1,12 @@
 import { Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 import ChoixOptions from "../components/ChoixOptions";
 import PlatCard from "../components/PlatCard";
 import { useMenu } from "../hooks/useMenu";
 import { useRestaurant } from "../hooks/useRestaurant";
+import { envolerVersPanier } from "../lib/envol";
 import { normaliser } from "../lib/format";
 import { usePanier } from "../panier/usePanier";
 import type { Plat } from "../types/menu";
@@ -19,6 +20,8 @@ export default function Menu() {
   const [recherche, setRecherche] = useState("");
   const [platChoisi, setPlatChoisi] = useState<Plat | null>(null);
   const [annonce, setAnnonce] = useState<string | null>(null);
+  // Le bouton « Ajouter » cliqué : la photo s'envolera depuis lui.
+  const boutonSource = useRef<HTMLElement | null>(null);
 
   // Arrivée depuis l'accueil avec /menu#plat-3 : on descend jusqu'au plat.
   useEffect(() => {
@@ -47,13 +50,21 @@ export default function Menu() {
       .filter((categorie) => categorie.plats.length > 0);
   }, [categories, recherche]);
 
-  function choisir(plat: Plat) {
+  function choisir(plat: Plat, bouton: HTMLElement) {
+    boutonSource.current = bouton;
     if (plat.groupes_options.length > 0) {
       setPlatChoisi(plat);
       return;
     }
     ajouter({ platId: plat.id, nom: plat.nom, photo: plat.photo, prixUnitaire: plat.prix, options: [] });
+    envolerVersPanier(bouton, plat.photo);
     setAnnonce(`${plat.nom} ajouté au panier.`);
+  }
+
+  /** Après le choix des options : même envol, depuis le bouton qui avait ouvert la fenêtre. */
+  function apresOptions(message: string) {
+    envolerVersPanier(boutonSource.current, platChoisi?.photo);
+    setAnnonce(message);
   }
 
   function boutonAjouter(plat: Plat) {
@@ -63,7 +74,7 @@ export default function Menu() {
     return (
       <button
         type="button"
-        onClick={() => choisir(plat)}
+        onClick={(evenement) => choisir(plat, evenement.currentTarget)}
         aria-label={`Ajouter ${plat.nom} au panier`}
         className="inline-flex h-11 items-center gap-2 rounded-full bg-palmier-950 px-5 font-bold text-creme-50 transition-colors hover:bg-palmier-800"
       >
@@ -152,7 +163,7 @@ export default function Menu() {
           plat={platChoisi}
           devise={restaurant?.devise}
           onFermer={() => setPlatChoisi(null)}
-          onAjoute={setAnnonce}
+          onAjoute={apresOptions}
         />
       )}
 

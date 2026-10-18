@@ -32,11 +32,16 @@ function BoutonPanier({ onClick }: { onClick?: () => void }) {
       to="/panier"
       onClick={onClick}
       aria-label={libelle}
+      data-cible-panier
       className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-palmier-800 text-creme-50"
     >
       <ShoppingBag aria-hidden="true" className="h-5 w-5" />
       {nombreArticles > 0 && (
-        <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-or-500 px-1 text-xs font-bold text-palmier-950">
+        // La clé change à chaque ajout : React recrée la pastille et l'animation « bond » rejoue.
+        <span
+          key={nombreArticles}
+          className="bond absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-or-500 px-1 text-xs font-bold text-palmier-950"
+        >
           {nombreArticles}
         </span>
       )}
@@ -88,7 +93,7 @@ export default function Header() {
       </div>
 
       {menuOuvert && (
-        <nav id="menu-mobile" aria-label="Navigation mobile" className="border-t border-palmier-800 px-4 pb-4 md:hidden">
+        <nav id="menu-mobile" aria-label="Navigation mobile" className="deroule border-t border-palmier-800 px-4 pb-4 md:hidden">
           <ul className="flex flex-col gap-1 pt-2">
             {LIENS.map((lien) => (
               <li key={lien.to}>

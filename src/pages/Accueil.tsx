@@ -2,8 +2,11 @@ import { ArrowRight, Bike } from "lucide-react";
 import { Link } from "react-router";
 
 import PlatCard from "../components/PlatCard";
+import Rideau from "../components/Rideau";
 import { useMenu } from "../hooks/useMenu";
+import { useParallaxe } from "../hooks/useParallaxe";
 import { useRestaurant } from "../hooks/useRestaurant";
+import { useVisible } from "../hooks/useVisible";
 import { heureCourte, jourAujourdhui } from "../lib/format";
 
 const ETAPES = [
@@ -31,33 +34,50 @@ export default function Accueil() {
   const horaireDuJour = restaurant?.horaires.find((h) => h.jour === jourAujourdhui());
 
   const [debutSlogan, ...finSlogan] = (restaurant?.slogan ?? "").split(",");
+  const { ref: refEtapes, visible: etapesVisibles } = useVisible<HTMLOListElement>();
+  const { ref: refCartes, visible: cartesVisibles } = useVisible<HTMLDivElement>(0.15);
+  const refPhotos = useParallaxe<HTMLDivElement>();
+  const nomsPlats = plats.map((plat) => plat.nom);
 
   return (
     <>
+      <Rideau nom={restaurant?.nom ?? "Mboa Royal"} />
+
       {/* ---------- Bandeau principal ---------- */}
       <section className="bg-palmier-950 text-creme-50">
         <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 pb-20 pt-10 md:flex-row md:items-center">
           <div className="flex flex-1 flex-col gap-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-or-500">
+            <p className="apparait text-sm font-semibold uppercase tracking-[0.2em] text-or-500">
               Cuisine camerounaise · {restaurant?.ville}
             </p>
             <h1 className="font-titre text-5xl font-bold leading-[1.05] md:text-6xl">
-              {debutSlogan}
+              {restaurant && (
+                <span className="ligne-cache">
+                  <span style={{ animationDelay: "0.15s" }}>
+                    {debutSlogan}
+                    {finSlogan.length > 0 && ","}
+                  </span>
+                </span>
+              )}
               {finSlogan.length > 0 && (
-                <>
-                  ,<br />
-                  <span className="font-medium italic text-or-300">{finSlogan.join(",").trim()}</span>
-                </>
+                <span className="ligne-cache">
+                  <span className="font-medium italic text-or-300" style={{ animationDelay: "0.32s" }}>
+                    {finSlogan.join(",").trim()}
+                  </span>
+                </span>
               )}
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-creme-50/80">{restaurant?.description}</p>
+            <p className="apparait max-w-xl text-lg leading-relaxed text-creme-50/80" style={{ animationDelay: "0.55s" }}>
+              {restaurant?.description}
+            </p>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="apparait flex flex-wrap gap-3" style={{ animationDelay: "0.7s" }}>
               <Link
                 to="/menu"
-                className="inline-flex h-14 items-center gap-2 rounded-full bg-or-500 px-7 text-lg font-bold text-palmier-950 transition-colors hover:bg-or-300"
+                className="group inline-flex h-14 items-center gap-2 rounded-full bg-or-500 px-7 text-lg font-bold text-palmier-950 transition-colors hover:bg-or-300"
               >
-                Commander maintenant <ArrowRight aria-hidden="true" className="h-5 w-5" />
+                Commander maintenant
+                <ArrowRight aria-hidden="true" className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/reservation"
@@ -68,11 +88,11 @@ export default function Accueil() {
             </div>
 
             {restaurant && (
-              <div className="flex flex-wrap gap-x-6 gap-y-2 text-creme-50/80">
+              <div className="apparait flex flex-wrap gap-x-6 gap-y-2 text-creme-50/80" style={{ animationDelay: "0.85s" }}>
                 <span className="flex items-center gap-2">
                   <span
                     aria-hidden="true"
-                    className={`h-2.5 w-2.5 rounded-full ${restaurant.est_ouvert ? "bg-green-400" : "bg-or-300"}`}
+                    className={`h-2.5 w-2.5 rounded-full ${restaurant.est_ouvert ? "point-vivant bg-green-400" : "bg-or-300"}`}
                   />
                   {restaurant.est_ouvert ? "Ouvert" : "Fermé"} en ce moment
                   {horaireDuJour && !horaireDuJour.ferme &&
@@ -86,7 +106,7 @@ export default function Accueil() {
             )}
           </div>
 
-          <div className="grid flex-1 grid-cols-2 gap-4">
+          <div ref={refPhotos} className="grid flex-1 grid-cols-2 gap-4">
             {photos.length === 0 && (
               <>
                 <div className="squelette row-span-2 h-80 rounded-t-full rounded-b-2xl md:h-[420px]" />
@@ -95,23 +115,42 @@ export default function Accueil() {
               </>
             )}
             {photos.map((plat, index) => (
-              <img
-                key={plat.id}
-                src={plat.photo ?? ""}
-                alt={plat.nom}
-                width={400}
-                height={index === 0 ? 420 : 202}
-                className={
-                  index === 0
-                    ? "row-span-2 h-80 w-full rounded-t-full rounded-b-2xl object-cover md:h-[420px]"
-                    : "h-38 w-full rounded-2xl object-cover md:h-[202px]"
-                }
-              />
+              // L'enveloppe glisse au défilement ; la photo, dedans, fait son entrée.
+              <div key={plat.id} className={index === 0 ? "parallaxe-lente row-span-2" : "parallaxe-rapide"}>
+                <img
+                  src={plat.photo ?? ""}
+                  alt={plat.nom}
+                  width={400}
+                  height={index === 0 ? 420 : 202}
+                  style={{ animationDelay: `${0.3 + index * 0.18}s` }}
+                  className={
+                    index === 0
+                      ? "assiette h-80 w-full rounded-t-full rounded-b-2xl object-cover md:h-[420px]"
+                      : "assiette h-38 w-full rounded-2xl object-cover md:h-[202px]"
+                  }
+                />
+              </div>
             ))}
           </div>
         </div>
       </section>
-      <div className="bande-toghu" aria-hidden="true" />
+      <div className="bande-toghu bande-toghu-anime" aria-hidden="true" />
+
+      {/* ---------- Le défilé des plats (décoratif : les noms sont aussi dans le menu) ---------- */}
+      {nomsPlats.length > 0 && (
+        <div className="defile" aria-hidden="true">
+          <div className="defile-piste">
+            {[0, 1].map((copie) =>
+              nomsPlats.flatMap((nom) => [
+                <span key={`${copie}-${nom}`} className="defile-mot">
+                  {nom}
+                </span>,
+                <span key={`${copie}-${nom}-sep`} className="defile-separateur" />,
+              ]),
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ---------- Plats signature ---------- */}
       <section className="mx-auto max-w-6xl px-4 pb-10 pt-20">
@@ -125,23 +164,32 @@ export default function Accueil() {
           </Link>
         </div>
 
-        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-          {menuEnChargement &&
-            [1, 2, 3].map((n) => <div key={n} className="squelette h-96 rounded-2xl" />)}
-          {vedettes.map((plat) => (
-            <PlatCard
-              key={plat.id}
-              plat={plat}
-              devise={restaurant?.devise}
-              action={
-                <Link
-                  to={`/menu#plat-${plat.id}`}
-                  className="inline-flex h-11 items-center rounded-full bg-palmier-950 px-5 font-bold text-creme-50"
-                >
-                  Commander
-                </Link>
-              }
-            />
+        {menuEnChargement && (
+          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="squelette h-96 rounded-2xl" />
+            ))}
+          </div>
+        )}
+        <div
+          ref={refCartes}
+          className={`cartes-revelees grid gap-7 sm:grid-cols-2 lg:grid-cols-3 ${cartesVisibles ? "visible" : ""}`}
+        >
+          {vedettes.map((plat, index) => (
+            <div key={plat.id} className="flex" style={{ transitionDelay: `${(index % 3) * 0.15}s` }}>
+              <PlatCard
+                plat={plat}
+                devise={restaurant?.devise}
+                action={
+                  <Link
+                    to={`/menu#plat-${plat.id}`}
+                    className="inline-flex h-11 items-center rounded-full bg-palmier-950 px-5 font-bold text-creme-50 transition-colors hover:bg-palmier-800"
+                  >
+                    Commander
+                  </Link>
+                }
+              />
+            </div>
           ))}
         </div>
         {!menuEnChargement && vedettes.length === 0 && (
@@ -152,10 +200,17 @@ export default function Accueil() {
       {/* ---------- Comment commander ---------- */}
       <section className="mx-auto max-w-6xl px-4 pb-20 pt-10">
         <h2 className="mb-8 text-center font-titre text-4xl text-palmier-950">Commander, c'est simple</h2>
-        <ol className="grid gap-6 md:grid-cols-3">
+        <ol ref={refEtapes} className={`etapes grid gap-6 md:grid-cols-3 ${etapesVisibles ? "visible" : ""}`}>
           {ETAPES.map((etape, index) => (
-            <li key={etape.titre} className="flex flex-col gap-3 rounded-2xl border border-sable-300 bg-creme-0 p-7">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-palmier-950 font-titre text-2xl font-bold text-or-500">
+            <li
+              key={etape.titre}
+              style={{ transitionDelay: `${index * 0.22}s` }}
+              className="flex flex-col gap-3 rounded-2xl border border-sable-300 bg-creme-0 p-7"
+            >
+              <span
+                style={{ transitionDelay: `${0.3 + index * 0.22}s` }}
+                className="numero-etape flex h-12 w-12 items-center justify-center rounded-full bg-palmier-950 font-titre text-2xl font-bold text-or-500"
+              >
                 {index + 1}
               </span>
               <h3 className="text-xl font-bold text-palmier-950">{etape.titre}</h3>
@@ -178,7 +233,7 @@ export default function Accueil() {
           </div>
           <Link
             to="/reservation"
-            className="inline-flex h-14 items-center rounded-full bg-or-500 px-7 text-lg font-bold text-palmier-950 transition-colors hover:bg-or-300"
+            className="inline-flex h-14 items-center rounded-full bg-or-500 px-7 text-lg font-bold text-palmier-950 transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-or-300 active:translate-y-0"
           >
             Réserver une table
           </Link>
