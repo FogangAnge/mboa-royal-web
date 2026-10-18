@@ -6,6 +6,7 @@ import { getReservations } from "../../api/admin";
 import { useRestaurant } from "../../hooks/useRestaurant";
 import { FUSEAU_RESTAURANT, formatHeure, formatPrix } from "../../lib/format";
 import BadgeStatut from "../BadgeStatut";
+import SectionGraphiques from "../SectionGraphiques";
 import { estDuJour, ilYA, jourRestaurant, STATUTS_EN_COURS } from "../outils";
 import { useCommandesAdmin } from "../useCommandesAdmin";
 
@@ -137,6 +138,9 @@ export default function TableauDeBord() {
           </ul>
         </section>
       </div>
+
+      {/* Les tendances viennent après l'urgent : ce qu'il faut faire maintenant reste en haut. */}
+      <SectionGraphiques commandes={toutes} restaurant={restaurant} enActualisation={commandes.isFetching && !commandes.isPending} />
     </div>
   );
 }
